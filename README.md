@@ -19,7 +19,7 @@ O minimundo e o DDL estão em `estrutura.sql`; o documento de especificação de
 
 ## 🚀 Tecnologias
 
-- **Web server:** WampServer (Apache + MySQL/MariaDB)  
+- **Web server:** WampServer (Apache + MySQL/MariaDB)  - link para acessar os controles: http://localhost/controle_quimicos/controles_php/
 - **Back-end:** PHP 8+ (PDO)  
 - **Banco de Dados:** MySQL (ou MariaDB)  
 - **Front-end:** HTML5, CSS3, Bootstrap 5 (via CDN ou scripts_css/)  
@@ -66,6 +66,8 @@ controle_quimicos/
 │   ├ movimentacao_estoque_form.php
 │   └ solicita_gem_list.php
 │   └ solicita_gem_form.php
+├ BD
+|   └ estrutura.sql
 ├ scripts_css/                 ← CSS customizado ou Bootstrap local
 ├ testar_conexao.php           ← script simples para validar PDO
 └ estrutura.sql                ← DDL do banco de dados
