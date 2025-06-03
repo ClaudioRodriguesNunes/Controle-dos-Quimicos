@@ -19,7 +19,7 @@ O minimundo e o DDL estão em `estrutura.sql`; o documento de especificação de
 
 ## 🚀 Tecnologias
 
-- **Web server:** WampServer (Apache + MySQL/MariaDB)  - link para acessar os controles: http://localhost/controle_quimicos/controles_php/
+- **Web server:** WampServer (Apache + MySQL/MariaDB)  - Dúividas para configurar? Deixei-as no fórum de discussão - link para acessar os controles: http://localhost/controle_quimicos/controles_php/
 - **Back-end:** PHP 8+ (PDO)  
 - **Banco de Dados:** MySQL (ou MariaDB)  
 - **Front-end:** HTML5, CSS3, Bootstrap 5 (via CDN ou scripts_css/)  
