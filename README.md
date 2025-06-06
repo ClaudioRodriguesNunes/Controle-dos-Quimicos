@@ -68,6 +68,13 @@ controle_quimicos/
 │   └ solicita_gem_form.php
 ├ BD
 |   └ estrutura.sql
+├ Views
+|   ├ cadastro_pessoa.php
+|   ├ consulta_pessoa.php
+|   ├ editar_pessoa.php
+|   └ form_editar_pessoa.php
 ├ scripts_css/                 ← CSS customizado ou Bootstrap local
 ├ testar_conexao.php           ← script simples para validar PDO
+├ conexao.php
+├ index.php
 └ estrutura.sql                ← DDL do banco de dados
