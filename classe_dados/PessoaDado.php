@@ -92,4 +92,22 @@ class PessoaDado {
         $stmt = $this->pdo->prepare("DELETE FROM Pessoa WHERE id_pessoa = ?");
         $stmt->execute([$id]);
     }
+	
+	public function buscarPorNomeOuEquipe($nome, $equipe) {
+    $sql = "SELECT * FROM Pessoa WHERE 1=1";
+    $params = [];
+    if ($nome !== '') {
+        $sql .= " AND (Primeiro_Nome LIKE ? OR SobreNome LIKE ?)";
+        $params[] = "%$nome%";
+        $params[] = "%$nome%";
+    }
+    if ($equipe !== '') {
+        $sql .= " AND equipe = ?";
+        $params[] = $equipe;
+    }
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+	}
+
 }

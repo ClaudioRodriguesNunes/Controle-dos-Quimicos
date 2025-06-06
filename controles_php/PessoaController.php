@@ -1,66 +1,55 @@
 <?php
-// controles_php/PessoaController.php
+require_once "../conexao.php";
+require_once "../classe_dados/PessoaDado.php";
 
-require __DIR__ . '/../config/database.php';
-require __DIR__ . '/../classe_dados/PessoaDado.php';
+$model = new PessoaDado($conn);
 
-$model = new PessoaDado($pdo);
-$action = $_GET['action'] ?? 'list';
+$action = $_GET['action'] ?? $_POST['action'] ?? 'list';
 
 switch ($action) {
-    case 'list':
-        $pessoas = $model->listar();
-        include __DIR__ . '/../templates_html/pessoa_list.php';
-        break;
+  case 'list':
+    $pessoas = $model->listar();
+    include '../views/consulta_pessoa.php';
+    break;
 
-    case 'new':
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $equipe        = (int) trim($_POST['equipe']);
-            $primeiro_nome = trim($_POST['primeiro_nome']);
-            $sobrenome     = trim($_POST['sobrenome']);
+  case 'new':
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+      $primeiro_nome = $_POST['primeiro_nome'];
+      $sobrenome = $_POST['sobrenome'];
+      $equipe = $_POST['equipe'];
+      $model->inserir($equipe, $primeiro_nome, $sobrenome);
+      header("Location: ../index.php?pagina=consulta_pessoa");
+      exit;
+    }
+    break;
 
-            // validação simples
-            if ($equipe > 0 && $primeiro_nome !== '' && $sobrenome !== '') {
-                $model->inserir($equipe, $primeiro_nome, $sobrenome);
-                header('Location: PessoaController.php?action=list');
-                exit;
-            } else {
-                $error = 'Preencha todos os campos corretamente.';
-            }
-        }
-        // dados em branco para o form
-        $pessoa = ['id_pessoa'=> 0, 'equipe'=> '', 'primeiro_nome'=> '', 'sobrenome'=> ''];
-        include __DIR__ . '/../templates_html/pessoa_form.php';
-        break;
+  case 'edit':
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+      $id = $_POST['id'];
+      $primeiro_nome = $_POST['primeiro_nome'];
+      $sobrenome = $_POST['sobrenome'];
+      $equipe = $_POST['equipe'];
+      $model->atualizar($id, $equipe, $primeiro_nome, $sobrenome);
+      header("Location: ../index.php?pagina=consulta_pessoa");
+      exit;
+    }
+    break;
 
-    case 'edit':
-        $id = (int) ($_GET['id'] ?? 0);
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $equipe        = (int) trim($_POST['equipe']);
-            $primeiro_nome = trim($_POST['primeiro_nome']);
-            $sobrenome     = trim($_POST['sobrenome']);
+  case 'delete':
+    $id = $_GET['id'] ?? null;
+    if ($id !== null) {
+      $model->remover((int)$id);
+      header("Location: ../index.php?pagina=consulta_pessoa&removido=1");
+      exit;
+    }
+    break;
 
-            if ($id > 0 && $equipe > 0 && $primeiro_nome !== '' && $sobrenome !== '') {
-                $model->atualizar($id, $equipe, $primeiro_nome, $sobrenome);
-                header('Location: PessoaController.php?action=list');
-                exit;
-            } else {
-                $error = 'Preencha todos os campos corretamente.';
-            }
-        }
-        $pessoa = $model->buscarPorId($id) ?: ['id_pessoa'=>0,'equipe'=>'','primeiro_nome'=>'','sobrenome'=>''];
-        include __DIR__ . '/../templates_html/pessoa_form.php';
-        break;
-
-    case 'delete':
-        $id = (int) ($_GET['id'] ?? 0);
-        if ($id > 0) {
-            $model->remover($id);
-        }
-        header('Location: PessoaController.php?action=list');
-        exit;
-
-    default:
-        header('Location: PessoaController.php?action=list');
-        exit;
+  case 'delete_multiple':
+    $ids = $_POST['ids'] ?? [];
+    foreach ($ids as $id) {
+      $model->remover((int)$id);
+    }
+    header("Location: ../index.php?pagina=consulta_pessoa&removido=1");
+    exit;
+    break;
 }
