@@ -108,4 +108,45 @@ class PessoaDado {
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+	    /**
+     * Insere uma nova pessoa.
+     *
+     * @param int    $equipe
+     * @param string $primeiro_nome
+     * @param string $sobrenome
+     */
+    public function inserir(int $equipe, string $primeiro_nome, string $sobrenome): void {
+        $stmt = $this->pdo->prepare(
+            "INSERT INTO Pessoa (equipe, primeiro_nome, sobrenome)
+             VALUES (?, ?, ?)"
+        );
+        $stmt->execute([$equipe, $primeiro_nome, $sobrenome]);
+    }
+
+    /**
+     * Atualiza uma pessoa existente.
+     *
+     * @param int    $id
+     * @param int    $equipe
+     * @param string $primeiro_nome
+     * @param string $sobrenome
+     */
+    public function atualizar(int $id, int $equipe, string $primeiro_nome, string $sobrenome): void {
+        $stmt = $this->pdo->prepare(
+            "UPDATE Pessoa
+               SET equipe = ?, primeiro_nome = ?, sobrenome = ?
+             WHERE id_pessoa = ?"
+        );
+        $stmt->execute([$equipe, $primeiro_nome, $sobrenome, $id]);
+    }
+
+    /**
+     * Remove uma pessoa pelo ID.
+     *
+     * @param int $id
+     */
+    public function remover(int $id): void {
+        $stmt = $this->pdo->prepare("DELETE FROM Pessoa WHERE id_pessoa = ?");
+        $stmt->execute([$id]);
+    }
 }

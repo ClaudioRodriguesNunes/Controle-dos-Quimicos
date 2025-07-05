@@ -40,11 +40,39 @@ switch ($action) {
         exit;
 
     case 'delete':
-        $id = (int) ($_GET['id'] ?? 0);
+        $id = (int)($_GET['id'] ?? 0);
         if ($id > 0) {
+            // 1) verifica se ela é supervisor
+            require_once __DIR__ . '/../classe_dados/SupervisorDado.php';
+            $supDao = new SupervisorDado($pdo);
+            if ($supDao->contarPorPessoa($id) > 0) {
+                header('Location: ../index.php?pagina=pessoa/list&error=has_supervisor');
+                exit;
+            }
+
+            // 2) verifica se ela é operador
+            require_once __DIR__ . '/../classe_dados/OperadorDado.php';
+            $opeDao = new OperadorDado($pdo);
+            if ($opeDao->contarPorPessoa($id) > 0) {
+                header('Location: ../index.php?pagina=pessoa/list&error=has_operador');
+                exit;
+            }
+
+            // 3) verifica se ela tem movimentações
+            require_once __DIR__ . '/../classe_dados/MovimentacaoEstoqueDado.php';
+            $movDao = new MovimentacaoEstoqueDado($pdo);
+            if ($movDao->contarPorOperador($id) > 0) {
+                header('Location: ../index.php?pagina=pessoa/list&error=has_movimentacao');
+                exit;
+            }
+
+            // só aqui remove de fato
             $model->remover($id);
+            header('Location: ../index.php?pagina=pessoa/list&deleted=1');
+            exit;
         }
-        header('Location: ../index.php?pagina=pessoa/list&deleted=1');
+        // se não veio um ID válido, volta à lista sem msg
+        header('Location: ../index.php?pagina=pessoa/list');
         exit;
 
     case 'delete_multiple':

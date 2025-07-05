@@ -45,12 +45,26 @@ switch ($action) {
         exit;
 
     case 'delete':
-        $id = (int) ($_GET['id'] ?? 0);
+        $id = (int)($_GET['id'] ?? 0);
         if ($id > 0) {
+            // 1) verifica se esse operador tem movimentações
+            require_once __DIR__ . '/../classe_dados/MovimentacaoEstoqueDado.php';
+            $movDao = new MovimentacaoEstoqueDado($pdo);
+            if ($movDao->contarPorOperador($id) > 0) {
+                // redireciona com erro
+                header('Location: ../index.php?pagina=operador/list&error=has_mov');
+                exit;
+            }
+
+            // 2) se não tiver movimentações, remove
             $model->remover($id);
+            header('Location: ../index.php?pagina=operador/list&deleted=1');
+            exit;
         }
-        header('Location: ../index.php?pagina=operador/list&deleted=1');
+        // id inválido: volta mesmo assim à lista
+        header('Location: ../index.php?pagina=operador/list');
         exit;
+
 
     default:
         header('Location: ../index.php?pagina=operador/form');

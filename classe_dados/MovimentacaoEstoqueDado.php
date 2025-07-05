@@ -38,8 +38,6 @@ class MovimentacaoEstoqueDado {
     return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 
-
-
     public function buscarPorId(int $id): ?array {
         $stmt = $this->pdo->prepare("SELECT * FROM MovimentacaoEstoque WHERE id_movimentacao = ?");
         $stmt->execute([$id]);
@@ -83,5 +81,13 @@ class MovimentacaoEstoqueDado {
     public function remover(int $id): void {
         $stmt = $this->pdo->prepare("DELETE FROM MovimentacaoEstoque WHERE id_movimentacao = ?");
         $stmt->execute([$id]);
+    }
+	
+	public function contarPorOperador(int $idOperador): int {
+        $stmt = $this->pdo->prepare(
+          "SELECT COUNT(*) FROM MovimentacaoEstoque WHERE id_operador = ?"
+        );
+        $stmt->execute([$idOperador]);
+        return (int) $stmt->fetchColumn();
     }
 }

@@ -81,4 +81,12 @@ class OperadorDado {
         // Executa o comando de remoção no banco de dados
         $stmt->execute([$idPessoa]);
     }
+	
+	public function contarPorPessoa(int $idPessoa): int {
+		$stmt = $this->pdo->prepare(
+		"SELECT COUNT(*) FROM OperadorProducao WHERE id_pessoa = ?"
+		);
+		$stmt->execute([$idPessoa]);
+		return (int)$stmt->fetchColumn();
+	}
 }
