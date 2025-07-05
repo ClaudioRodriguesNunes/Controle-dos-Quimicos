@@ -1,44 +1,58 @@
 <?php
-// controles_php/OperadorController.php
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../classe_dados/OperadorDado.php';
 
-require __DIR__ . '/../config/database.php';
-require __DIR__ . '/../classe_dados/OperadorDado.php';
-require __DIR__ . '/../classe_dados/PessoaDado.php';
-
-$operadorModel = new OperadorDado($pdo);
-$pessoaModel   = new PessoaDado($pdo);
-$action        = $_GET['action'] ?? 'list';
+$model  = new OperadorDado($pdo);
+$action = $_GET['action'] ?? $_POST['action'] ?? 'form';
 
 switch ($action) {
-    case 'list':
-        $operadores = $operadorModel->listar();
-        include __DIR__ . '/../templates_html/operador_list.php';
-        break;
 
     case 'new':
-        $pessoas = $pessoaModel->listar();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $idPessoa = (int) ($_POST['id_operador'] ?? 0);
-            try {
-                $operadorModel->inserir($idPessoa);
-                header('Location: OperadorController.php?action=list');
+            $id_operador = (int) ($_POST['id_operador'] ?? 0);
+
+            if ($id_operador > 0) {
+                if ($model->buscarPorId($id_operador)) {
+                    header('Location: ../index.php?pagina=operador/form&duplicate=1');
+                    exit;
+                }
+                $model->inserir($id_operador);
+                header('Location: ../index.php?pagina=operador/form&success=1');
                 exit;
-            } catch (PDOException $e) {
-                $error = 'Erro ao inserir operador: ' . $e->getMessage();
             }
+
+            header('Location: ../index.php?pagina=operador/form&error=1');
+            exit;
         }
-        include __DIR__ . '/../templates_html/operador_form.php';
-        break;
+        header('Location: ../index.php?pagina=operador/form');
+        exit;
+
+    case 'edit':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id           = (int) ($_POST['id']           ?? 0);
+            $id_operador  = (int) ($_POST['id_operador']  ?? 0);
+
+            if ($id > 0 && $id_operador > 0) {
+                $model->atualizar($id, $id_operador);
+                header('Location: ../index.php?pagina=operador/form&edit=1&id=' . $id);
+                exit;
+            }
+
+            header('Location: ../index.php?pagina=operador/form&error=1&id=' . $id);
+            exit;
+        }
+        header('Location: ../index.php?pagina=operador/form');
+        exit;
 
     case 'delete':
-        $idPessoa = (int) ($_GET['id'] ?? 0);
-        if ($idPessoa > 0) {
-            $operadorModel->remover($idPessoa);
+        $id = (int) ($_GET['id'] ?? 0);
+        if ($id > 0) {
+            $model->remover($id);
         }
-        header('Location: OperadorController.php?action=list');
+        header('Location: ../index.php?pagina=operador/list&deleted=1');
         exit;
 
     default:
-        header('Location: OperadorController.php?action=list');
+        header('Location: ../index.php?pagina=operador/form');
         exit;
 }

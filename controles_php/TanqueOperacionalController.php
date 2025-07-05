@@ -1,91 +1,72 @@
 <?php
-// controles_php/TanqueOperacionalController.php
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../classe_dados/TanqueOperacionalDado.php';
 
-require __DIR__ . '/../config/database.php';
-require __DIR__ . '/../classe_dados/TanqueOperacionalDado.php';
-require __DIR__ . '/../classe_dados/ProdutoDado.php';
-
-$tanqueModel   = new TanqueOperacionalDado($pdo);
-$produtoModel  = new ProdutoDado($pdo);
-$action        = $_GET['action'] ?? 'list';
+$model  = new TanqueOperacionalDado($pdo);
+$action = $_GET['action'] ?? $_POST['action'] ?? 'form';
 
 switch ($action) {
-    case 'list':
-        $tanques = $tanqueModel->listar();
-        include __DIR__ . '/../templates_html/tanque_operacional_list.php';
-        break;
-
     case 'new':
-        $produtos = $produtoModel->listar();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $idProduto        = (int) ($_POST['id_produto'] ?? 0);
-            $localizacao      = trim($_POST['localizacao']);
-            $capMax           = (int) ($_POST['capacidade_maxima_litros'] ?? 0);
-            $status           = $_POST['status'] ?? '';
-            $nivelAtual       = (int) ($_POST['nivel_atual_litros'] ?? 0);
+            $id_produto            = (int)   ($_POST['id_produto']                   ?? 0);
+            $localizacao           = trim($_POST['localizacao']                  ?? '');
+            $capacidade_maxima     = (int)   ($_POST['capacidade_maxima_litros']     ?? 0);
+            $status                = trim($_POST['status']                       ?? '');
+            $nivel_atual_litros    = (int)   ($_POST['nivel_atual_litros']           ?? 0);
 
-            if ($capMax > 0 && $status !== '' && $nivelAtual >= 0) {
-                $tanqueModel->inserir(
-                    $idProduto ?: null,
+            if ($capacidade_maxima > 0 && $status !== '' && $nivel_atual_litros >= 0) {
+                $model->inserir(
+                    $id_produto ?: null,
                     $localizacao ?: null,
-                    $capMax,
+                    $capacidade_maxima,
                     $status,
-                    $nivelAtual
+                    $nivel_atual_litros
                 );
-                header('Location: TanqueOperacionalController.php?action=list');
+                header('Location: ../index.php?pagina=tanque/form&success=1');
                 exit;
-            } else {
-                $error = 'Preencha todos os campos obrigatórios corretamente.';
             }
+            header('Location: ../index.php?pagina=tanque/form&error=1');
+            exit;
         }
-        $tanque = [
-            'id_tanque'=>0,'id_produto'=>'','localizacao'=>'',
-            'capacidade_maxima_litros'=>'','status'=>'','nivel_atual_litros'=>''
-        ];
-        include __DIR__ . '/../templates_html/tanque_operacional_form.php';
-        break;
+        header('Location: ../index.php?pagina=tanque/form');
+        exit;
 
     case 'edit':
-        $id       = (int) ($_GET['id'] ?? 0);
-        $produtos = $produtoModel->listar();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $idProduto        = (int) ($_POST['id_produto'] ?? 0);
-            $localizacao      = trim($_POST['localizacao']);
-            $capMax           = (int) ($_POST['capacidade_maxima_litros'] ?? 0);
-            $status           = $_POST['status'] ?? '';
-            $nivelAtual       = (int) ($_POST['nivel_atual_litros'] ?? 0);
+            $id                    = (int)   ($_POST['id']                           ?? 0);
+            $id_produto            = (int)   ($_POST['id_produto']                   ?? 0);
+            $localizacao           = trim($_POST['localizacao']                  ?? '');
+            $capacidade_maxima     = (int)   ($_POST['capacidade_maxima_litros']     ?? 0);
+            $status                = trim($_POST['status']                       ?? '');
+            $nivel_atual_litros    = (int)   ($_POST['nivel_atual_litros']           ?? 0);
 
-            if ($id > 0 && $capMax > 0 && $status !== '' && $nivelAtual >= 0) {
-                $tanqueModel->atualizar(
+            if ($id > 0 && $capacidade_maxima > 0 && $status !== '' && $nivel_atual_litros >= 0) {
+                $model->atualizar(
                     $id,
-                    $idProduto ?: null,
+                    $id_produto ?: null,
                     $localizacao ?: null,
-                    $capMax,
+                    $capacidade_maxima,
                     $status,
-                    $nivelAtual
+                    $nivel_atual_litros
                 );
-                header('Location: TanqueOperacionalController.php?action=list');
+                header('Location: ../index.php?pagina=tanque/form&edit=1&id=' . $id);
                 exit;
-            } else {
-                $error = 'Preencha todos os campos obrigatórios corretamente.';
             }
+            header('Location: ../index.php?pagina=tanque/form&error=1&id=' . $id);
+            exit;
         }
-        $tanque = $tanqueModel->buscarPorId($id) ?: [
-            'id_tanque'=>0,'id_produto'=>'','localizacao'=>'',
-            'capacidade_maxima_litros'=>'','status'=>'','nivel_atual_litros'=>''
-        ];
-        include __DIR__ . '/../templates_html/tanque_operacional_form.php';
-        break;
+        header('Location: ../index.php?pagina=tanque/form');
+        exit;
 
     case 'delete':
         $id = (int) ($_GET['id'] ?? 0);
         if ($id > 0) {
-            $tanqueModel->remover($id);
+            $model->remover($id);
         }
-        header('Location: TanqueOperacionalController.php?action=list');
+        header('Location: ../index.php?pagina=tanque/list&deleted=1');
         exit;
 
     default:
-        header('Location: TanqueOperacionalController.php?action=list');
+        header('Location: ../index.php?pagina=tanque/form');
         exit;
 }

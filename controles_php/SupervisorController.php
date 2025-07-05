@@ -1,48 +1,34 @@
 <?php
-// controles_php/SupervisorController.php
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../classe_dados/SupervisorDado.php';
 
-require __DIR__ . '/../config/database.php';
-require __DIR__ . '/../classe_dados/SupervisorDado.php';
-require __DIR__ . '/../classe_dados/PessoaDado.php';
-
-$supervisorModel = new SupervisorDado($pdo);
-$pessoaModel     = new PessoaDado($pdo);
-$action          = $_GET['action'] ?? 'list';
-
+$model  = new SupervisorDado($pdo);
+$action = $_GET['action'] ?? $_POST['action'] ?? 'form';
 
 switch ($action) {
-    case 'list':
-        $supervisores = $supervisorModel->listar();
-        include __DIR__ . '/../templates_html/supervisor_list.php';
-        break;
-
     case 'new':
-        // lista todas as pessoas para seleção
-        $pessoas = $pessoaModel->listar();
-
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $idPessoa = (int) ($_POST['id_suprod'] ?? 0);
-            try {
-                $supervisorModel->inserir($idPessoa);
-                header('Location: SupervisorController.php?action=list');
+            $id = (int) ($_POST['id_suprod'] ?? 0);
+            if ($id > 0) {
+                $model->inserir($id);
+                header('Location: ../index.php?pagina=supervisor/form&success=1');
                 exit;
-            } catch (PDOException $e) {
-                $error = 'Erro ao inserir: ' . $e->getMessage();
             }
+            header('Location: ../index.php?pagina=supervisor/form&error=1');
+            exit;
         }
-
-        include __DIR__ . '/../templates_html/supervisor_form.php';
-        break;
+        header('Location: ../index.php?pagina=supervisor/form');
+        exit;
 
     case 'delete':
-        $idPessoa = (int) ($_GET['id'] ?? 0);
-        if ($idPessoa > 0) {
-            $supervisorModel->remover($idPessoa);
+        $id = (int) ($_GET['id'] ?? 0);
+        if ($id > 0) {
+            $model->remover($id);
         }
-        header('Location: SupervisorController.php?action=list');
+        header('Location: ../index.php?pagina=supervisor/list&deleted=1');
         exit;
 
     default:
-        header('Location: SupervisorController.php?action=list');
+        header('Location: ../index.php?pagina=supervisor/form');
         exit;
 }

@@ -29,16 +29,21 @@ class SupervisorDado {
      *
      * @return array Lista de supervisores com dados da tabela Pessoa.
      */
-    public function listar(): array {
+	public function listar(): array {
         $sql = "
-            SELECT sp.id_suprod, p.primeiro_nome, p.sobrenome
-            FROM SupervisorProducao AS sp
-            JOIN Pessoa AS p ON sp.id_suprod = p.id_pessoa
-            ORDER BY sp.id_suprod
+            SELECT 
+              sup.id_suprod,
+              p.primeiro_nome,
+              p.sobrenome
+            FROM SupervisorProducao AS sup
+            JOIN Pessoa            AS p
+              ON sup.id_suprod = p.id_pessoa
+            ORDER BY p.primeiro_nome, p.sobrenome
         ";
-        // Executa consulta e retorna todos os registros em um array
-        return $this->pdo->query($sql)->fetchAll();
+        return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
+
+
 
     /**
      * Busca um supervisor pelo ID da pessoa.

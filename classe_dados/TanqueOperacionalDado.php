@@ -45,6 +45,29 @@ class TanqueOperacionalDado {
         return $this->pdo->query($sql)->fetchAll();
     }
 
+
+     /* Retorna todos os tanques de um produto específico.
+     *
+     * @param int $idProduto
+     * @return array
+     */
+    public function listarPorProduto(int $idProduto): array {
+        $sql = "
+            SELECT 
+              t.id_tanque,
+              t.localizacao,
+              t.capacidade_maxima_litros,   -- nome correto da coluna
+              t.nivel_atual_litros
+            FROM TanqueOperacional AS t
+            WHERE t.id_produto = ?
+            ORDER BY t.id_tanque
+        ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$idProduto]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
     /**
      * Busca um tanque pelo seu ID.
      *

@@ -29,15 +29,16 @@ CREATE TABLE OperadorProducao (
 
 -- 4. Recipiente
 CREATE TABLE Recipiente (
-  id_recipiente     INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  id_produto        INT UNSIGNED               NOT NULL,
-  status            ENUM('lacrado','aberto','vazio','vencido') NOT NULL,
-  data_chegada      DATE                        NULL,
-  capacidade_litros INT                         NOT NULL,
-  data_validade     DATE                        NULL,
-  tipo              ENUM('Tanque','Bombona','Barril')      NOT NULL,
-  FOREIGN KEY (id_produto) REFERENCES ProdutoQuimico(id_produto)
-) ENGINE=InnoDB;
+  id_recipiente     VARCHAR2(3)   NOT NULL,
+  id_produto        VARCHAR2(3),
+  status            VARCHAR2(10),
+  data_chegada      DATE,
+  capacidade_litros NUMBER(10)    NOT NULL,
+  quantidade_litros NUMBER(10)    NOT NULL DEFAULT 0,
+  data_validade     DATE,
+  tipo              VARCHAR2(15)  NOT NULL,
+  PRIMARY KEY (id_recipiente)
+);
 -- Original Oracle: varchar2, number, date, etc. :contentReference[oaicite:6]{index=6}:contentReference[oaicite:7]{index=7}
 
 -- 5. TanqueOperacional
@@ -47,23 +48,22 @@ CREATE TABLE TanqueOperacional (
   localizacao            VARCHAR(2)                 NULL,
   capacidade_maxima_litros INT                       NOT NULL,
   status                 ENUM('Stand By','Operacional','Manutenção') NOT NULL,
-  nivel_atual_litros     INT                         NOT NULL,
+  nivel_atual_litros     INT                         NOT NULL DEFAULT 0,
   FOREIGN KEY (id_produto) REFERENCES ProdutoQuimico(id_produto)
 ) ENGINE=InnoDB;
 -- Original Oracle: varchar2 e number(10) :contentReference[oaicite:8]{index=8}:contentReference[oaicite:9]{index=9}
 
 -- 6. MovimentacaoEstoque
 CREATE TABLE MovimentacaoEstoque (
-  id_movimentacao    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  id_tanque          INT UNSIGNED               NULL,
-  id_recipiente      INT UNSIGNED               NULL,
-  id_operador        INT UNSIGNED               NULL,
-  tipo_movimentacao  ENUM('Abastecimento','Retorno') NOT NULL,
-  data_hora          DATETIME                   NOT NULL,
-  FOREIGN KEY (id_tanque)     REFERENCES TanqueOperacional(id_tanque),
-  FOREIGN KEY (id_recipiente) REFERENCES Recipiente(id_recipiente),
-  FOREIGN KEY (id_operador)   REFERENCES OperadorProducao(id_operador)
-) ENGINE=InnoDB;
+  id_movimentacao     VARCHAR2(3)   NOT NULL,
+  id_tanque           VARCHAR2(3),
+  id_recipiente       VARCHAR2(3),
+  id_operador         VARCHAR2(5),
+  tipo_movimentacao   VARCHAR2(2)   NOT NULL,
+  quantidade_litros   NUMBER(10)    NOT NULL,
+  data_hora           DATE          NOT NULL,
+  PRIMARY KEY (id_movimentacao)
+);
 -- Original Oracle: sem quantidade_litros, seis colunas :contentReference[oaicite:10]{index=10}:contentReference[oaicite:11]{index=11}
 
 -- 7. SolicitaGEM

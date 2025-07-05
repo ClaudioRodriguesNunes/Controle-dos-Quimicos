@@ -1,72 +1,72 @@
 <?php
-// controles_php/SolicitaGEMController.php
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../classe_dados/SolicitaGEMDado.php';
 
-require __DIR__ . '/../config/database.php';
-require __DIR__ . '/../classe_dados/SolicitaGEMDado.php';
-require __DIR__ . '/../classe_dados/ProdutoDado.php';
-require __DIR__ . '/../classe_dados/SupervisorDado.php';
-
-$model       = new SolicitaGEMDado($pdo);
-$produtoModel= new ProdutoDado($pdo);$supModel    = new SupervisorDado($pdo);
-$action      = $_GET['action'] ?? 'list';
+$model  = new SolicitaGEMDado($pdo);
+$action = $_GET['action'] ?? $_POST['action'] ?? 'form';
 
 switch ($action) {
-    case 'list':
-        $solicitacoes = $model->listar();
-        include __DIR__ . '/../templates_html/solicita_gem_list.php';
-        break;
-
     case 'new':
-        $produtos      = $produtoModel->listar();
-        $supervisores  = $supModel->listar();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $idProduto = (int) ($_POST['id_produto'] ?? 0);
-            $idSuprod  = (int) ($_POST['id_suprod'] ?? 0);
-            $status    = $_POST['status'] ?? '';
-            $tipo      = $_POST['tipo_solicitacao'] ?? '';
-            $data      = $_POST['data_solicitacao'] ?? '';
+            $id_produto     = (int)   ($_POST['id_produto']     ?? 0);
+            $id_suprod      = (int)   ($_POST['id_suprod']      ?? 0);
+            $status         = trim($_POST['status']           ?? '');
+            $tipo           = trim($_POST['tipo_solicitacao'] ?? '');
+            $data_solicit   = trim($_POST['data_solicitacao'] ?? '');
 
-            if ($idProduto && $idSuprod && $status && $tipo && $data) {
-                $model->inserir($idProduto, $idSuprod, $status, $tipo, $data);
-                header('Location: SolicitaGEMController.php?action=list');
+            if ($id_produto > 0 && $id_suprod > 0 && $status !== '' && $tipo !== '' && $data_solicit !== '') {
+                $model->inserir(
+                    $id_produto,
+                    $id_suprod,
+                    $status,
+                    $tipo,
+                    $data_solicit
+                );
+                header('Location: ../index.php?pagina=solicita_gem/form&success=1');
                 exit;
-            } else {
-                $error = 'Todos os campos são obrigatórios.';
             }
+            header('Location: ../index.php?pagina=solicita_gem/form&error=1');
+            exit;
         }
-        $sol = ['id_solicitacao'=>0,'id_produto'=>'','id_suprod'=>'','status'=>'','tipo_solicitacao'=>'','data_solicitacao'=>''];
-        include __DIR__ . '/../templates_html/solicita_gem_form.php';
-        break;
+        header('Location: ../index.php?pagina=solicita_gem/form');
+        exit;
 
     case 'edit':
-        $id            = (int) ($_GET['id'] ?? 0);
-        $produtos      = $produtoModel->listar();
-        $supervisores  = $supModel->listar();
-        $sol           = $model->buscarPorId($id) ?: $sol;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $idProduto = (int) ($_POST['id_produto'] ?? 0);
-            $idSuprod  = (int) ($_POST['id_suprod'] ?? 0);
-            $status    = $_POST['status'] ?? '';
-            $tipo      = $_POST['tipo_solicitacao'] ?? '';
-            $data      = $_POST['data_solicitacao'] ?? '';
-            if ($id && $idProduto && $idSuprod && $status && $tipo && $data) {
-                $model->atualizar($id, $idProduto, $idSuprod, $status, $tipo, $data);
-                header('Location: SolicitaGEMController.php?action=list');
+            $id               = (int)   ($_POST['id']               ?? 0);
+            $id_produto       = (int)   ($_POST['id_produto']       ?? 0);
+            $id_suprod        = (int)   ($_POST['id_suprod']        ?? 0);
+            $status           = trim($_POST['status']           ?? '');
+            $tipo             = trim($_POST['tipo_solicitacao'] ?? '');
+            $data_solicit     = trim($_POST['data_solicitacao'] ?? '');
+
+            if ($id > 0 && $id_produto > 0 && $id_suprod > 0 && $status !== '' && $tipo !== '' && $data_solicit !== '') {
+                $model->atualizar(
+                    $id,
+                    $id_produto,
+                    $id_suprod,
+                    $status,
+                    $tipo,
+                    $data_solicit
+                );
+                header('Location: ../index.php?pagina=solicita_gem/form&edit=1&id=' . $id);
                 exit;
-            } else {
-                $error = 'Todos os campos são obrigatórios.';
             }
+            header('Location: ../index.php?pagina=solicita_gem/form&error=1&id=' . $id);
+            exit;
         }
-        include __DIR__ . '/../templates_html/solicita_gem_form.php';
-        break;
+        header('Location: ../index.php?pagina=solicita_gem/form');
+        exit;
 
     case 'delete':
         $id = (int) ($_GET['id'] ?? 0);
-        if ($id) $model->remover($id);
-        header('Location: SolicitaGEMController.php?action=list');
+        if ($id > 0) {
+            $model->remover($id);
+        }
+        header('Location: ../index.php?pagina=solicita_gem/list&deleted=1');
         exit;
 
     default:
-        header('Location: SolicitaGEMController.php?action=list');
+        header('Location: ../index.php?pagina=solicita_gem/form');
         exit;
 }

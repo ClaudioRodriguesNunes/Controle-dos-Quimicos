@@ -1,0 +1,84 @@
+-- 1) Criação do banco e seleção
+CREATE DATABASE controle_quimicos
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+USE controle_quimicos;
+
+-- 2) Tabela Pessoa
+CREATE TABLE Pessoa (
+  id_pessoa INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  equipe    TINYINT UNSIGNED       NOT NULL,
+  primeiro_nome VARCHAR(100)       NOT NULL,
+  sobrenome     VARCHAR(100)       NOT NULL
+) ENGINE=InnoDB;
+
+-- 3) Supervisor de Produção
+CREATE TABLE SupervisorProducao (
+  id_suprod  INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  id_pessoa  INT UNSIGNED               NOT NULL,
+  FOREIGN KEY (id_pessoa) REFERENCES Pessoa(id_pessoa)
+) ENGINE=InnoDB;
+
+-- 4) Operador de Produção
+CREATE TABLE OperadorProducao (
+  id_oprod   INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  id_pessoa  INT UNSIGNED               NOT NULL,
+  FOREIGN KEY (id_pessoa) REFERENCES Pessoa(id_pessoa)
+) ENGINE=InnoDB;
+
+-- 5) Produtos Químicos
+CREATE TABLE ProdutoQuimico (
+  id_produto        INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  nome_produto      VARCHAR(100)       NOT NULL UNIQUE,
+  descricao         TEXT                         NULL
+) ENGINE=InnoDB;
+
+-- 6) Recipientes
+CREATE TABLE Recipiente (
+  id_recipiente   INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  id_produto      INT UNSIGNED               NULL,
+  status          ENUM('lacrado','operacional','vazio','vencido') NOT NULL,
+  data_chegada    DATE                        NULL,
+  capacidade_litros   DECIMAL(12,4)       NOT NULL,
+  quantidade_litros   DECIMAL(12,4)       NOT NULL DEFAULT 0,
+  data_validade   DATE                        NULL,
+  tipo            ENUM('Tanque','Bombona','Barril') NOT NULL,
+  FOREIGN KEY (id_produto) REFERENCES ProdutoQuimico(id_produto)
+) ENGINE=InnoDB;
+
+-- 7) Tanques Operacionais
+CREATE TABLE TanqueOperacional (
+  id_tanque              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  id_produto             INT UNSIGNED               NULL,
+  localizacao            VARCHAR(50)               NULL,
+  capacidade_maxima_litros DECIMAL(12,4)         NOT NULL,
+  status                 ENUM('Stand By','Operacional','Manutenção') NOT NULL,
+  nivel_atual_litros     DECIMAL(12,4)         NOT NULL DEFAULT 0,
+  FOREIGN KEY (id_produto) REFERENCES ProdutoQuimico(id_produto)
+) ENGINE=InnoDB;
+
+-- 8) Movimentações de Estoque
+CREATE TABLE MovimentacaoEstoque (
+  id_movimentacao    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  id_tanque          INT UNSIGNED               NULL,
+  id_recipiente      INT UNSIGNED               NULL,
+  id_operador        INT UNSIGNED               NULL,
+  tipo_movimentacao  ENUM('Abastecimento','Retorno') NOT NULL,
+  quantidade         DECIMAL(12,4)             NOT NULL,  -- NOVO campo
+  data_hora          DATETIME                  NOT NULL,
+  FOREIGN KEY (id_tanque)     REFERENCES TanqueOperacional(id_tanque),
+  FOREIGN KEY (id_recipiente) REFERENCES Recipiente(id_recipiente),
+  FOREIGN KEY (id_operador)   REFERENCES Pessoa(id_pessoa)
+) ENGINE=InnoDB;
+
+-- 9) Solicitações GEM
+CREATE TABLE SolicitaGEM (
+  id_solicitacao     INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  id_produto         INT UNSIGNED               NOT NULL,
+  id_suprod          INT UNSIGNED               NOT NULL,
+  status             ENUM('Pendente','Atendida','Cancelada') NOT NULL,
+  tipo_solicitacao   ENUM('Entrada','Saida')    NOT NULL,
+  data_solicitacao   DATETIME                  NOT NULL,
+  FOREIGN KEY (id_produto) REFERENCES ProdutoQuimico(id_produto),
+  FOREIGN KEY (id_suprod)  REFERENCES SupervisorProducao(id_suprod)
+) ENGINE=InnoDB;

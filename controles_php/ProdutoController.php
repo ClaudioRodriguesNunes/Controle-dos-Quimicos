@@ -1,65 +1,55 @@
 <?php
-// controles_php/ProdutoController.php
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../classe_dados/ProdutoDado.php';
 
-require __DIR__ . '/../config/database.php';
-require __DIR__ . '/../classe_dados/ProdutoDado.php';
-
-$produtoDado = new ProdutoDado($pdo);
-$action = $_GET['action'] ?? 'list';
+$model  = new ProdutoDado($pdo);
+$action = $_GET['action'] ?? $_POST['action'] ?? 'form';
 
 switch ($action) {
-    case 'list':
-        $produtos = $produtoDado->listar();
-        include __DIR__ . '/../templates_html/produto_list.php';
-        break;
-
     case 'new':
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $nome      = trim($_POST['nome_produto'] ?? '');
-            $validade  = $_POST['validade_produto'] ?? null;
-            $validade  = $validade === '' ? null : $validade;
-
-            if ($nome !== '') {
-                $produtoDado->inserir($nome, $validade);
-                header('Location: ProdutoController.php?action=list');
-                exit;
-            } else {
-                $error = 'O nome do produto é obrigatório.';
-            }
-        }
-        $produto = ['id_produto'=>0,'nome_produto'=>'','validade_produto'=>''];
-        include __DIR__ . '/../templates_html/produto_form.php';
-        break;
+        $nome = trim($_POST['nome_produto'] ?? '');
+        if ($nome !== '') {
+            $model->inserir($nome, '', 0); // passa '' e 0 só para não quebrar o método
+            header('Location: ../index.php?pagina=produto/form&success=1');
+        } else {
+            header('Location: ../index.php?pagina=produto/form&error=1');
+               }
+    exit;
 
     case 'edit':
-        $id = (int)($_GET['id'] ?? 0);
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $nome      = trim($_POST['nome_produto'] ?? '');
-            $validade  = $_POST['validade_produto'] ?? null;
-            $validade  = $validade === '' ? null : $validade;
-
+            $id       = (int) ($_POST['id']                ?? 0);
+            $nome     = trim($_POST['nome_produto']        ?? '');
+            $validade = $_POST['validade_produto'] ?? '';
+            $validade = $validade === '' ? null : $validade;
             if ($id > 0 && $nome !== '') {
-                $produtoDado->atualizar($id, $nome, $validade);
-                header('Location: ProdutoController.php?action=list');
+                $model->atualizar($id, $nome, $validade);
+                header('Location: ../index.php?pagina=produto/form&edit=1&id=' . $id);
                 exit;
-            } else {
-                $error = 'O nome do produto é obrigatório.';
             }
+            header('Location: ../index.php?pagina=produto/form&error=1&id=' . $id);
+            exit;
         }
-        $produto = $produtoDado->buscarPorId($id) 
-                    ?: ['id_produto'=>0,'nome_produto'=>'','validade_produto'=>''];
-        include __DIR__ . '/../templates_html/produto_form.php';
-        break;
+        header('Location: ../index.php?pagina=produto/form');
+        exit;
 
     case 'delete':
-        $id = (int)($_GET['id'] ?? 0);
+        $id = (int) ($_GET['id'] ?? 0);
         if ($id > 0) {
-            $produtoDado->remover($id);
+            $model->remover($id);
         }
-        header('Location: ProdutoController.php?action=list');
+        header('Location: ../index.php?pagina=produto/list&deleted=1');
+        exit;
+
+    case 'delete_multiple':
+        $ids = $_POST['ids'] ?? [];
+        foreach ($ids as $i) {
+            $model->remover((int)$i);
+        }
+        header('Location: ../index.php?pagina=produto/list&deleted=1');
         exit;
 
     default:
-        header('Location: ProdutoController.php?action=list');
+        header('Location: ../index.php?pagina=produto/form');
         exit;
 }

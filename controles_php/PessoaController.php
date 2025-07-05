@@ -1,55 +1,61 @@
 <?php
-require_once "../conexao.php";
-require_once "../classe_dados/PessoaDado.php";
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../classe_dados/PessoaDado.php';
 
-$model = new PessoaDado($conn);
-
-$action = $_GET['action'] ?? $_POST['action'] ?? 'list';
+$model  = new PessoaDado($pdo);
+$action = $_GET['action'] ?? $_POST['action'] ?? 'form';
 
 switch ($action) {
-  case 'list':
-    $pessoas = $model->listar();
-    include '../views/consulta_pessoa.php';
-    break;
+    case 'new':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $primeiro_nome = trim($_POST['primeiro_nome'] ?? '');
+            $sobrenome     = trim($_POST['sobrenome']     ?? '');
+            $equipe        = (int) ($_POST['equipe']       ?? 0);
+            if ($primeiro_nome !== '' && $sobrenome !== '' && $equipe > 0) {
+                $model->inserir($equipe, $primeiro_nome, $sobrenome);
+                header('Location: ../index.php?pagina=pessoa/form&success=1');
+                exit;
+            }
+            header('Location: ../index.php?pagina=pessoa/form&error=1');
+            exit;
+        }
+        header('Location: ../index.php?pagina=pessoa/form');
+        exit;
 
-  case 'new':
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-      $primeiro_nome = $_POST['primeiro_nome'];
-      $sobrenome = $_POST['sobrenome'];
-      $equipe = $_POST['equipe'];
-      $model->inserir($equipe, $primeiro_nome, $sobrenome);
-      header("Location: ../index.php?pagina=consulta_pessoa");
-      exit;
-    }
-    break;
+    case 'edit':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id            = (int) ($_POST['id']           ?? 0);
+            $primeiro_nome = trim($_POST['primeiro_nome']  ?? '');
+            $sobrenome     = trim($_POST['sobrenome']      ?? '');
+            $equipe        = (int) ($_POST['equipe']       ?? 0);
+            if ($id > 0 && $primeiro_nome !== '' && $sobrenome !== '' && $equipe > 0) {
+                $model->atualizar($id, $equipe, $primeiro_nome, $sobrenome);
+                header('Location: ../index.php?pagina=pessoa/form&edit=1&id=' . $id);
+                exit;
+            }
+            header('Location: ../index.php?pagina=pessoa/form&error=1&id=' . $id);
+            exit;
+        }
+        header('Location: ../index.php?pagina=pessoa/form');
+        exit;
 
-  case 'edit':
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-      $id = $_POST['id'];
-      $primeiro_nome = $_POST['primeiro_nome'];
-      $sobrenome = $_POST['sobrenome'];
-      $equipe = $_POST['equipe'];
-      $model->atualizar($id, $equipe, $primeiro_nome, $sobrenome);
-      header("Location: ../index.php?pagina=consulta_pessoa");
-      exit;
-    }
-    break;
+    case 'delete':
+        $id = (int) ($_GET['id'] ?? 0);
+        if ($id > 0) {
+            $model->remover($id);
+        }
+        header('Location: ../index.php?pagina=pessoa/list&deleted=1');
+        exit;
 
-  case 'delete':
-    $id = $_GET['id'] ?? null;
-    if ($id !== null) {
-      $model->remover((int)$id);
-      header("Location: ../index.php?pagina=consulta_pessoa&removido=1");
-      exit;
-    }
-    break;
+    case 'delete_multiple':
+        $ids = $_POST['ids'] ?? [];
+        foreach ($ids as $i) {
+            $model->remover((int)$i);
+        }
+        header('Location: ../index.php?pagina=pessoa/list&deleted=1');
+        exit;
 
-  case 'delete_multiple':
-    $ids = $_POST['ids'] ?? [];
-    foreach ($ids as $id) {
-      $model->remover((int)$id);
-    }
-    header("Location: ../index.php?pagina=consulta_pessoa&removido=1");
-    exit;
-    break;
+    default:
+        header('Location: ../index.php?pagina=pessoa/form');
+        exit;
 }
