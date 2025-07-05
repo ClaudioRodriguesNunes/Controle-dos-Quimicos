@@ -15,14 +15,14 @@ O sistema oferece CRUD completo para as seguintes entidades:
 - **Movimentações de Estoque** (`MovimentacaoEstoque`): registros de abastecimento e retorno
 - **Solicitações GEM** (`SolicitaGEM`): requisições de entrada ou saída de produtos
 
-O minimundo e o DDL estão em `estrutura.sql`; o documento de especificação detalha regras de negócio.
+O minimundo e o DDL estão em `BD\comandos sql criar banco de dados.txt`; o documento de especificação detalha regras de negócio.
 
 ## 🚀 Tecnologias
 
 - **Web server:** WampServer (Apache + MySQL/MariaDB)  - Dúividas para configurar? Deixei-as no fórum de discussão - link para acessar os controles: http://localhost/controle_quimicos/controles_php/
 - **Back-end:** PHP 8+ (PDO)  
 - **Banco de Dados:** MySQL (ou MariaDB)  
-- **Front-end:** HTML5, CSS3, Bootstrap 5 (via CDN ou scripts_css/)
+- **Front-end:** HTML5, CSS3, Java Script, Bootstrap 5 (via CDN ou scripts_css/)
 
 ## Destaques
 - PDO significa PHP Data Objects.
@@ -39,6 +39,7 @@ controle_quimicos/
 │   ├ PessoaController.php
 │   ├ SupervisorController.php
 │   ├ OperadorController.php
+|   ├ OperacaoProducaoController.php
 │   ├ RecipienteController.php
 │   ├ TanqueOperacionalController.php
 │   ├ MovimentacaoEstoqueController.php
@@ -53,25 +54,39 @@ controle_quimicos/
 │   ├ MovimentacaoEstoqueDado.php
 │   └ SolicitaGEMDado.php
 ├ templates_html/              ← views Bootstrap
-│   ├ produto_list.php
-│   ├ produto_form.php
-│   ├ pessoa_list.php
-│   ├ pessoa_form.php
-│   ├ supervisor_list.php
-│   ├ supervisor_form.php
-│   ├ operador_list.php
-│   ├ operador_form.php
-│   ├ recipiente_list.php
-│   ├ recipiente_form.php
-│   ├ tanque_operacional_list.php
-│   ├ tanque_operacional_form.php
-│   ├ movimentacao_estoque_list.php
-│   ├ movimentacao_estoque_form.php
-│   └ solicita_gem_list.php
-│   └ solicita_gem_form.php
 ├ BD
-|   └ estrutura.sql
+|   └ estrutura.sql            ←  obsoleto
+|   └ comandos sql criar banco de dados.txt
 ├ Views                        ←  integração do portal com menu dinâmico (Bootstrap)
+|   ├ Consulta
+|   |  └ produtos.php   
+│   ├ movimentacao_estoque
+|   |  ├ form.php
+|   |  └ list.php
+│   ├ operacao_producao
+|   |  ├ form.php
+|   |  └ list.php
+│   ├ operador
+|   |  ├ form.php
+|   |  └ list.php
+│   ├ pessoa
+|   |  ├ form.php
+|   |  └ list.php
+│   ├ produto
+|   |  ├ form.php
+|   |  └ list.php
+│   ├ recipiente
+|   |  ├ form.php
+|   |  └ list.php
+│   ├ solicita_gem
+|   |  ├ form.php
+|   |  └ list.php
+│   ├ supervisor
+|   |  ├ form.php
+|   |  └ list.php
+│   ├ tanque
+|   |  ├ form.php
+|   |  └ list.php
 |   ├ cadastro_pessoa.php
 |   ├ consulta_pessoa.php
 |   ├ editar_pessoa.php
