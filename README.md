@@ -27,6 +27,7 @@ O minimundo e o DDL estão em `BD\comandos sql criar banco de dados.txt`; o docu
 ## Destaques
 - PDO significa PHP Data Objects.
 É uma interface de acesso a banco de dados em PHP, criada para permitir que você trabalhe com vários bancos de dados usando o mesmo código básico, de forma segura e orientada a objetos. 
+- **DAO (Data Access Object)**: Optei pois usei vários métodos e para faciliar manutenção futuras no código, a implantação dessa técnica em separar em um bloco distinto os aquivos que fariam acesso aos dados do banco, em comparação com os demais arquivos, que foram elaborados sem a preocupação dos códigos SQL, tabelas e conexões.  Basta chamar os métodos que a mágica fez acontecer.
 
 ## 🗂️ Estrutura de Pastas
 
