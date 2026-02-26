@@ -1,6 +1,6 @@
 # Projeto Controle de Produtos Químicos (PGP-1)
 
-Este é um projeto acadêmico em dupla para a disciplina de Banco de Dados e Desenvolvimento Web, cujo objetivo é controlar produtos químicos na plataforma Garoupa (PGP-1) da Petrobras.
+Este é um projeto acadêmico em dupla para a disciplina de Banco de Dados e Desenvolvimento Web, cujo objetivo é controlar produtos químicos em uma plataforma.
 
 ## 📖 Funcionalidades
 
